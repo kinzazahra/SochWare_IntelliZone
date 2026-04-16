@@ -1,5 +1,7 @@
 from flask import Flask, Response, jsonify
 from flask_cors import CORS
+from flask import send_from_directory
+from flask import send_file, make_response
 import cv2
 import pandas as pd
 import numpy as np
@@ -69,8 +71,11 @@ def process_frame(frame):
     analytics.resize_heatmap(frame)
     frame_blurred = cv2.GaussianBlur(frame, (5, 5), 0)
 
-    # 2. Detection
+    # 2. Detection (This draws the Pink Tracking Box)
     img, center = detector.get_frame_data(frame_blurred)
+
+    # 2.5 🛠️ ADDED THIS LINE: Draw the REAL Restricted & Warning Zones!
+    img = zone_mngr.draw_all_zones(img)
 
     # 3. Processing
     if center:
@@ -218,6 +223,30 @@ def get_status():
 @app.route('/')
 def home():
     return jsonify({"message": "IntelliZone API is running"})
+
+
+@app.route('/get_latest_capture')
+def get_latest_capture():
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        capture_dir = os.path.join(base_dir, 'data', 'logs', 'captures')
+        
+        if not os.path.exists(capture_dir):
+            return "No captures", 404
+
+        files = [os.path.join(capture_dir, f) for f in os.listdir(capture_dir) if f.endswith('.jpg')]
+        if not files:
+            return "No images", 404
+            
+        latest_file = max(files, key=os.path.getctime)
+        
+        # Create a response and clear the cache so the browser doesn't show old photos
+        response = make_response(send_file(latest_file, mimetype='image/jpeg'))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
+    except Exception as e:
+        print(f"Error serving image: {e}")
+        return str(e), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False, threaded=True)

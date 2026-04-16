@@ -1,105 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 :root {
-    --bg-dark: #0f172a;
-    --card-bg: rgba(30, 41, 59, 0.7);
-    --accent: #38bdf8;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --success: #10b981;
+  --bg: #0b0c10;
+  --panel-bg: rgba(20, 25, 35, 0.7);
+  --border: rgba(102, 252, 241, 0.15);
+  --accent: #66fcf1;
 }
 
-body {
-    background-color: var(--bg-dark);
-    color: #f8fafc;
-    margin: 0;
-    padding: 20px;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+/* 1. THE NUCLEAR OPTION: Absolute lockdown on the viewport */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: #c5c6c7;
+  font-family: 'Inter', sans-serif;
+  width: 100vw;
+  height: 100vh !important;
+  overflow: hidden !important; /* FORBIDS PAGE SCROLLING */
+  box-sizing: border-box;
 }
 
-.dashboard-container {
-    max-width: 1600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+*, *::before, *::after { box-sizing: inherit; }
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(102, 252, 241, 0.3); border-radius: 10px; }
+
+/* UI PANELS */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
-.glass-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+.master-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh; /* Locks to screen height */
+  padding: 15px;
+  gap: 15px;
+  overflow: hidden;
 }
 
-/* Header Styling */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
+/* --- SIDEBAR --- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.sidebar.open { width: 240px; }
+.sidebar.closed { width: 70px; align-items: center; }
+
+.brand h2 { color: #fff; margin: 0 0 30px 0; font-size: 1.2rem; }
+.nav-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 8px; cursor: pointer; color: #888; font-weight: 600; }
+.nav-item.active { background: rgba(102, 252, 241, 0.1); color: var(--accent); }
+.nav-item .icon { font-size: 1.2rem; }
+
+/* --- MAIN WRAPPER --- */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Force to parent height */
+  min-width: 0; 
+  gap: 15px;
+  overflow: hidden; /* Stop internal blowout */
 }
 
-.highlight { color: var(--accent); }
-
-/* Main Grid Layout */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 20px;
+.top-header {
+  height: 60px;
+  flex-shrink: 0; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
 }
 
-.column-left, .column-right {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.toggle-btn { background: transparent; border: 1px solid var(--border); color: var(--accent); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+.status-badge { padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; }
+.status-badge.danger { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d; }
+.status-badge.secure { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #4ade80; }
+
+/* --- THE STRICT GRID --- */
+.strict-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 0; 
+  overflow: hidden; /* Stop grid from expanding */
 }
 
-/* Video Containers */
-.video-container, .heatmap-container {
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #000;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid rgba(56, 189, 248, 0.3);
+/* --- KPI ROW STYLES --- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  height: 100px; 
+  flex-shrink: 0;
 }
 
-.main-stream, .heatmap-stream {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.kpi-card { display: flex; flex-direction: column; justify-content: center; padding: 15px; }
+.kpi-title { font-size: 0.8rem; text-transform: uppercase; color: #9aa4bf; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+.kpi-value { font-size: 1.8rem; font-weight: 700; color: white; }
+
+/* --- BOTTOM ROW (Table + Video) --- */
+.grid-bottom {
+  flex: 1; 
+  display: grid;
+  grid-template-columns: 55% calc(45% - 15px); 
+  gap: 15px;
+  min-height: 0; 
+  overflow: hidden; /* Cuts off overflow */
 }
 
-/* Prediction Engine Stats */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
+/* LEFT SIDE: TABLE SCROLL FIX */
+.grid-bottom-left {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  min-height: 0; 
+  overflow-y: auto; /* ONLY this specific box is allowed to scroll vertically */
+  overflow-x: hidden;
 }
 
-.status-badge {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 0.9rem;
+/* Fix the React inline styles automatically */
+.grid-bottom-left > div { margin-top: 0 !important; }
+.grid-bottom-left .table-wrapper { flex: 1 !important; max-height: none !important; overflow-y: auto; }
+
+/* RIGHT SIDE: VIDEO & HEATMAP FIXES */
+.grid-bottom-right {
+  display: grid;
+  grid-template-rows: 1fr 1fr; 
+  gap: 15px;
+  min-height: 0;
+  overflow: hidden; /* Prevents videos from breaking the layout */
 }
 
-.secure { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
-.danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-
-.pulse {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: currentColor;
-    margin-right: 8px;
-    animation: pulse-animation 2s infinite;
+.video-box {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  min-height: 0;
+  overflow: hidden;
 }
 
-@keyframes pulse-animation {
-    0% { transform: scale(0.95); opacity: 0.7; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(0.95); opacity: 0.7; }
+.box-header { color: #fff; font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+
+/* THE MAGIC TRICK */
+.media-container {
+  flex: 1;
+  position: relative; 
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(102, 252, 241, 0.2);
+}
+
+.constrained-media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; 
 }
