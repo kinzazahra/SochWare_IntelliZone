@@ -15,25 +15,20 @@ class AnalyticsEngine:
             print(f"✅ Heatmap resized to {w}x{h}")
 
     def update_heatmap(self, center, intensity=1.0):
-        if self.heatmap_data is None or center is None:
-            return
-
-        x = int(center[0])
-        
-        # 🔥 THE FIX: Shift the heat up by 150 pixels so it sits on the body, not the bottom edge!
-        y = int(center[1]) - 150 
-
-        # Keep it safely within the screen bounds
-        x = max(0, min(x, self.width - 1))
-        y = max(0, min(y, self.height - 1))
-
-        overlay = np.zeros_like(self.heatmap_data)
-        
-        # Make the circle a bit larger (radius 60) so it's very clear on the dashboard
-        boosted_intensity = float(intensity) * 10.0 
-        cv2.circle(overlay, (x, y), 60, boosted_intensity, -1)
-        
-        self.heatmap_data = np.clip(self.heatmap_data + overlay, 0, 255)
+        if center and self.heatmap_data is not None:
+            x, y = center
+            # Limit coordinates to frame boundaries
+            x = min(max(int(x), 0), self.width - 1)
+            y = min(max(int(y), 0), self.height - 1)
+            
+            # Draw the "heat" point onto our float32 data layer
+            # We use a larger radius (40) and add value to create a "hot spot"
+            radius = 15
+            mask = np.zeros_like(self.heatmap_data)
+            cv2.circle(mask, (x, y), radius, intensity * 50, -1)
+            
+            # Add this new heat to the existing data
+            self.heatmap_data = cv2.add(self.heatmap_data, mask)
 
     def apply_decay(self, decay_rate=0.98):
         if self.heatmap_data is not None:
@@ -43,15 +38,18 @@ class AnalyticsEngine:
         if self.heatmap_data is None:
             return None
 
-        # 🔥 FIX 2: Smaller blur kernel. 
-        # This keeps the center "hotter" while still giving a soft edge.
-        blurred_heat = cv2.GaussianBlur(self.heatmap_data, (31, 31), 0)
+        # 1. Apply a HEAVY blur to create the "Glowing Cloud" look
+        # This blends the points into soft vapor
+        blurred_heat = cv2.GaussianBlur(self.heatmap_data, (51, 51), 0)
 
-        norm_heat = blurred_heat.astype(np.uint8)
+        # 2. Normalize and convert to 8-bit color
+        # We clip it at 255 so it doesn't get too bright
+        norm_heat = np.clip(blurred_heat, 0, 255).astype(np.uint8)
+        
+        # 3. Apply the JET colormap (Blue -> Green -> Red)
         heatmap_color = cv2.applyColorMap(norm_heat, cv2.COLORMAP_JET)
         
-        # 🔥 FIX 3: Lower the cutoff mask from 15 to 5.
-        # This allows the faint green/blue glowing edges to survive.
+        # 4. Mask out the empty background so it stays black
         mask = norm_heat < 5 
         heatmap_color[mask] = [0, 0, 0]
 
