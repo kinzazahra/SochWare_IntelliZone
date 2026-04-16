@@ -1,10 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* ☀️ LIGHT MODE (Clean, Crisp, Corporate) */
 :root {
-  --bg: #0b0c10;
-  --panel-bg: rgba(20, 25, 35, 0.7);
+  --bg: #f8fafc; /* Very light, clean slate */
+  --panel-bg: #ffffff; /* Solid white panels for maximum contrast */
+  --border: #e2e8f0;
+  --accent: #0284c7; /* Deep professional blue */
+  --text-main: #334155; 
+  --text-muted: #64748b;
+  --header-text: #0f172a; /* Near black for strong readability */
+  --panel-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* 🌙 DARK MODE (Deep, Sleek, Cyber-Security) */
+[data-theme="dark"] {
+  --bg: #030712; /* True deep black/navy background */
+  --panel-bg: rgba(15, 23, 42, 0.75); /* Rich, dark slate glass */
   --border: rgba(102, 252, 241, 0.15);
-  --accent: #66fcf1;
+  --accent: #66fcf1; /* High-contrast neon cyan */
+  --text-main: #e2e8f0;
+  --text-muted: #64748b; /* Cool grey for secondary text */
+  --header-text: #ffffff; /* Pure white for headers */
+  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Deeper shadow for depth */
 }
 
 /* 1. THE NUCLEAR OPTION: Absolute lockdown on the viewport */
@@ -12,28 +31,34 @@ html, body {
   margin: 0;
   padding: 0;
   background-color: var(--bg);
-  color: #c5c6c7;
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
   width: 100vw;
   height: 100vh !important;
-  overflow: hidden !important; /* FORBIDS PAGE SCROLLING */
+  overflow: hidden !important; 
   box-sizing: border-box;
+  transition: background-color 0.4s ease, color 0.4s ease; 
 }
 
 *, *::before, *::after { box-sizing: inherit; }
 
-/* Custom Scrollbars */
-::-webkit-scrollbar { width: 6px; }
+/* Custom Scrollbars (Slim, sleek, and theme-aware) */
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(102, 252, 241, 0.3); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; opacity: 0.3; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(102, 252, 241, 0.25); }
+
+/* UI PANELS ... (Leave the rest of your CSS exactly as it is below this point!) */
 
 /* UI PANELS */
 .glass-panel {
   background: var(--panel-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: 12px;
+  box-shadow: var(--panel-shadow);
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .master-layout {
@@ -50,15 +75,16 @@ html, body {
   display: flex;
   flex-direction: column;
   padding: 20px 10px;
-  transition: width 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   white-space: nowrap;
 }
 .sidebar.open { width: 240px; }
 .sidebar.closed { width: 70px; align-items: center; }
 
-.brand h2 { color: #fff; margin: 0 0 30px 0; font-size: 1.2rem; }
-.nav-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 8px; cursor: pointer; color: #888; font-weight: 600; }
+.brand h2 { color: var(--header-text); margin: 0 0 30px 0; font-size: 1.2rem; }
+.nav-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 8px; cursor: pointer; color: var(--text-muted); font-weight: 600; transition: all 0.2s; }
+.nav-item:hover { background: rgba(102, 252, 241, 0.05); color: var(--accent); }
 .nav-item.active { background: rgba(102, 252, 241, 0.1); color: var(--accent); }
 .nav-item .icon { font-size: 1.2rem; }
 
@@ -82,10 +108,12 @@ html, body {
   padding: 0 20px;
 }
 
-.toggle-btn { background: transparent; border: 1px solid var(--border); color: var(--accent); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+.toggle-btn { background: transparent; border: 1px solid var(--border); color: var(--accent); padding: 5px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+.toggle-btn:hover { background: var(--accent); color: var(--bg); }
+
 .status-badge { padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; }
-.status-badge.danger { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d; }
-.status-badge.secure { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #4ade80; }
+.status-badge.danger { background: rgba(255, 77, 77, 0.15); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.4); }
+.status-badge.secure { background: rgba(74, 222, 128, 0.15); color: #10b981; border: 1px solid rgba(74, 222, 128, 0.4); }
 
 /* --- THE STRICT GRID --- */
 .strict-grid {
@@ -107,8 +135,8 @@ html, body {
 }
 
 .kpi-card { display: flex; flex-direction: column; justify-content: center; padding: 15px; }
-.kpi-title { font-size: 0.8rem; text-transform: uppercase; color: #9aa4bf; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-.kpi-value { font-size: 1.8rem; font-weight: 700; color: white; }
+.kpi-title { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+.kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--header-text); }
 
 /* --- BOTTOM ROW (Table + Video) --- */
 .grid-bottom {
@@ -126,13 +154,13 @@ html, body {
   flex-direction: column;
   padding: 20px;
   min-height: 0; 
-  overflow-y: auto; /* ONLY this specific box is allowed to scroll vertically */
-  overflow-x: hidden;
+  overflow: hidden; /* 🛑 FROZEN OUTER BOX: Prevents the button/image from scrolling */
 }
 
-/* Fix the React inline styles automatically */
-.grid-bottom-left > div { margin-top: 0 !important; }
-.grid-bottom-left .table-wrapper { flex: 1 !important; max-height: none !important; overflow-y: auto; }
+/* Forcing the inner table to handle the scroll */
+.grid-bottom-left .alerts-layout { margin: 0 !important; height: 100% !important; align-items: stretch !important; }
+.grid-bottom-left .alert-history { flex: 1 !important; display: flex; flex-direction: column; min-height: 0; margin-top: 0 !important; }
+.grid-bottom-left .table-wrapper { flex: 1 !important; max-height: none !important; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
 
 /* RIGHT SIDE: VIDEO & HEATMAP FIXES */
 .grid-bottom-right {
@@ -151,16 +179,16 @@ html, body {
   overflow: hidden;
 }
 
-.box-header { color: #fff; font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+.box-header { color: var(--header-text); font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
 
 /* THE MAGIC TRICK */
 .media-container {
   flex: 1;
   position: relative; 
-  background: #000;
+  background: #000; /* Keep black even in light mode so video looks good */
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(102, 252, 241, 0.2);
+  border: 1px solid var(--border);
 }
 
 .constrained-media {

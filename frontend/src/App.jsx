@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaBars, FaShieldAlt, FaChartLine, FaVideo, FaFileAlt, FaSlidersH, FaBug, FaCamera, FaClock, FaHistory } from 'react-icons/fa';
+import { FaBars, FaShieldAlt, FaChartLine, FaVideo, FaFileAlt, FaSlidersH, FaBug, FaCamera, FaClock, FaHistory, FaSun, FaMoon } from 'react-icons/fa';
 import AlertTable from './components/AlertTable';
 import './styles/dashboard.css';
 
@@ -8,22 +8,17 @@ const App = () => {
     const [timestamp, setTimestamp] = useState(Date.now());
     const [stats, setStats] = useState({ Critical: 0, Suspicious: 0 });
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isDarkMode, setIsDarkMode] = useState(false); 
 
-    // Fetch real backend data
     useEffect(() => {
         const interval = setInterval(() => {
-            
-            // 🛑 REMOVED THE FLAKY /status FETCH
-            // ✅ NOW FETCHING LOGS DIRECTLY SO HEADER AND TABLE ALWAYS MATCH
             fetch('http://localhost:5000/get_logs')
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.length > 0) {
-                        // Get the absolute newest log entry
                         const newestLog = data[data.length - 1]; 
                         const latestStatus = newestLog.Status || newestLog.status;
                         
-                        // Format it cleanly for the badge
                         let displayStatus = "SECURE";
                         if (latestStatus.includes('CRITICAL')) displayStatus = "CRITICAL BREACH";
                         else if (latestStatus.includes('WARNING')) displayStatus = "WARNING ACTIVE";
@@ -33,7 +28,6 @@ const App = () => {
                 })
                 .catch(() => {});
 
-            // Fetch Analytics...
             fetch('http://localhost:5000/get_analytics_summary')
                 .then(res => res.json())
                 .then(data => setStats({
@@ -47,12 +41,15 @@ const App = () => {
     }, []);
 
     return (
-        <div className="master-layout">
-            {/* SIDEBAR WITH REACT-ICONS */}
+        <div className="master-layout" data-theme={isDarkMode ? "dark" : "light"}>
+            
+            {/* SIDEBAR */}
             <aside className={`sidebar glass-panel ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <div className="brand">
-                    <FaShieldAlt style={{ fontSize: '28px', color: '#66fcf1' }} />
-                    <h2 style={{ display: isSidebarOpen ? 'block' : 'none' }}>IntelliZone<span style={{color: '#66fcf1'}}>//AI</span></h2>
+                    <FaShieldAlt style={{ fontSize: '28px', color: 'var(--accent)' }} />
+                    <h2 style={{ display: isSidebarOpen ? 'block' : 'none', color: 'var(--header-text)' }}>
+                        IntelliZone<span style={{color: 'var(--accent)'}}>//AI</span>
+                    </h2>
                 </div>
                 <nav className="nav-menu">
                     <div className="nav-item active"><FaChartLine className="icon"/><span style={{ display: isSidebarOpen ? 'block' : 'none' }}>Dashboard</span></div>
@@ -69,8 +66,21 @@ const App = () => {
                 <header className="top-header glass-panel">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <button className="toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}><FaBars /></button>
-                        <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#fff' }}>Security Command Center</h2>
+                        <h2 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--header-text)' }}>Security Command Center</h2>
+                        
+                        {/* THEME TOGGLE BUTTON */}
+                        <button 
+                            className="toggle-btn"
+                            onClick={() => setIsDarkMode(!isDarkMode)} 
+                            style={{
+                                marginLeft: '15px', display: 'flex', alignItems: 'center', gap: '8px',
+                                borderRadius: '20px', padding: '6px 14px', fontSize: '0.85rem'
+                            }}
+                        >
+                            {isDarkMode ? <><FaSun /> Light Mode</> : <><FaMoon /> Dark Mode</>}
+                        </button>
                     </div>
+
                     <div className={`status-badge ${systemStatus.includes('CRITICAL') ? 'danger' : 'secure'}`}>
                         {systemStatus}
                     </div>
@@ -78,7 +88,7 @@ const App = () => {
 
                 <div className="strict-grid">
                     
-                    {/* NEW KPI ROW FROM YOUR CODE */}
+                    {/* KPI ROW */}
                     <div className="kpi-row">
                         <div className="kpi-card glass-panel">
                             <div className="kpi-title"><FaShieldAlt /> System Health</div>
@@ -86,7 +96,6 @@ const App = () => {
                         </div>
                         <div className="kpi-card glass-panel">
                             <div className="kpi-title"><FaBug /> Threats Blocked</div>
-                            {/* Uses REAL data from your AI */}
                             <div className="kpi-value">{stats.Critical + stats.Suspicious}</div>
                         </div>
                         <div className="kpi-card glass-panel">
@@ -102,19 +111,17 @@ const App = () => {
                     {/* BOTTOM ROW (Table & Videos) */}
                     <div className="grid-bottom">
                         <div className="grid-bottom-left glass-panel">
-                            <h3 style={{color: '#fff', fontSize: '1rem', marginBottom: '10px'}}><FaHistory /> Recent Events</h3>
+                            <h3 style={{color: 'var(--header-text)', fontSize: '1rem', marginBottom: '10px'}}><FaHistory /> Recent Events</h3>
                             <AlertTable />
                         </div>
                         
                         <div className="grid-bottom-right">
-                            {/* REAL CAMERA FEED */}
                             <div className="video-box glass-panel">
                                 <div className="box-header"><FaVideo /> Live Surveillance</div>
                                 <div className="media-container">
                                     <img src="http://localhost:5000/video_feed" alt="Live Feed" className="constrained-media" />
                                 </div>
                             </div>
-                            {/* REAL HEATMAP FEED */}
                             <div className="video-box glass-panel">
                                 <div className="box-header"><FaChartLine /> Intrusion Heatmap</div>
                                 <div className="media-container">
